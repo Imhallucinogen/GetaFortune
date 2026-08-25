@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Public Stories Feed</h2>
+    <p class="subtitle">Explore deep insights and narratives written publicly by our global community.</p>
+
+    {% if not stories %}
+        <div style="text-align: center; padding: 60px 20px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-muted);">
+            <p style="color: var(--text-secondary); font-size: 1.1rem; margin: 0;">No chronicles shared yet. Sign in and be the first to publish!</p>
+        </div>
+    {% endif %}
+
+    {% for story in stories %}
+        <!-- Modern Card Layout Wrapper -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-muted); border-radius: 12px; padding: 28px; margin-bottom: 24px; transition: transform 0.2s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+            <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 1.4rem; font-weight: 600; letter-spacing: -0.3px;">{{ story.title }}</h3>
+            
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0; margin-bottom: 20px;">
+                Authored by <span style="color: #fff; font-weight: 500;">@{{ story.author.username }}</span> • {{ story.date_posted.strftime('%B %d, %Y') }}
+            </p>
+            
+            <!-- Dynamic Content Container Box -->
+            <div class="story-text-box" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 20px; line-height: 1.6; color: #E5E7EB; font-size: 1rem;">
+                {{ story.content }}
+            </div>
+            
+            <!-- Context Control Footer Bar Row -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-muted); padding-top: 20px;">
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="toggleStory(this)" style="background: rgba(255,255,255,0.06); color: #fff; padding: 8px 14px; font-size: 0.85rem; box-shadow: none; border: 1px solid var(--border-muted);">📖 Read More</button>
+                    
+                    <form action="/like/{{ story.id }}" method="POST" style="display: inline;">
+                        <button type="submit" style="background: rgba(59, 130, 246, 0.1); color: #60A5FA; padding: 8px 14px; font-size: 0.85rem; box-shadow: none; border: 1px solid rgba(59, 130, 246, 0.25);">👍 {{ story.likes }}</button>
+                    </form>
+                    
+                    <form action="/dislike/{{ story.id }}" method="POST" style="display: inline;">
+                        <button type="submit" style="background: rgba(239, 68, 68, 0.1); color: #F87171; padding: 8px 14px; font-size: 0.85rem; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.25);">👎 {{ story.dislikes }}</button>
+                    </form>
+                    {% if current_user.is_authenticated and current_user.id != story.user_id %}
+    <a href="/send_message/{{ story.user_id }}" style="background: rgba(255, 255, 255, 0.06); color: #fff; padding: 8px 14px; font-size: 0.85rem; border: 1px solid var(--border-muted); border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">✉️ Message Author</a>
+{% endif %}
+
+                </div>
+
+                {% if current_user.is_authenticated and (current_user.id == story.user_id or current_user.username == 'admin') %}
+                    <form action="/delete/{{ story.id }}" method="POST" style="display: inline;">
+                        <button type="submit" style="background: rgba(220, 38, 38, 0.15); color: #EF4444; padding: 8px 14px; font-size: 0.85rem; box-shadow: none; border: 1px solid rgba(220, 38, 38, 0.3);" onclick="return confirm('Erase this permanent chronicle record?');">🗑️ Delete</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+    <script>
+        function toggleStory(buttonElement) {
+            var card = buttonElement.closest('div').parentNode.previousElementSibling;
+            var textZone = card;
+            
+            if (textZone.style.webkitLineClamp === "3" || textZone.style.webkitLineClamp === "") {
+                textZone.style.display = "block";
+                textZone.style.webkitLineClamp = "none";
+                buttonElement.innerText = "✖️ Collapse Article";
+            } else {
+                textZone.style.display = "-webkit-box";
+                textZone.style.webkitLineClamp = "3";
+                buttonElement.innerText = "📖 Read More";
+            }
+        }
+    </script>
+{% endblock %}

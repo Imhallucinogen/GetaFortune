@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2 style="margin-bottom: 25px;">Secure Messaging Grid</h2>
+
+    {% if not chat_users %}
+        <div style="text-align: center; padding: 60px 20px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-muted);">
+            <p style="color: var(--text-secondary); font-size: 1.1rem; margin: 0;">No active communications found. Readers can message you from their stories feed panel!</p>
+        </div>
+    {% else %}
+        <!-- Side-by-side Dashboard partition Layout grid split layout -->
+        <div style="display: grid; grid-template-columns: 240px 1fr; gap: 20px; min-height: 500px;">
+            
+            <!-- Left Sidebar Navigation Menu: Active Conversations Threads list link -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-muted); border-radius: 12px; padding: 15px; overflow-y: auto;">
+                <h4 style="margin-top:0; border-bottom: 1px solid var(--border-muted); padding-bottom:10px; color: var(--text-secondary);">Active Threads</h4>
+                {% for usr in chat_users %}
+                    <a href="/inbox/{{ usr.id }}" style="display: block; padding: 12px; margin-bottom: 8px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; color: {% if partner and partner.id == usr.id %} #fff {% else %} var(--text-secondary) {% endif %}; background: {% if partner and partner.id == usr.id %} var(--accent-glow) {% else %} rgba(255,255,255,0.02) {% endif %}; border: 1px solid {% if partner and partner.id == usr.id %} transparent {% else %} var(--border-muted) {% endif %}; transition: all 0.2s ease;">
+                        👤 @{{ usr.username }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            <!-- Right Terminal Interface viewport: Continuous Chat Stream Feed bubble stack box layout -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-muted); border-radius: 12px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
+                
+                {% if partner %}
+                    <div style="background: rgba(255,255,255,0.02); padding: 15px 20px; border-bottom: 1px solid var(--border-muted);">
+                        <h4 style="margin:0;">Conversation with <span style="color: #60A5FA;">@{{ partner.username }}</span></h4>
+                    </div>
+
+                    <!-- Scrollable Chat Timeline Box Container -->
+                    <!-- Scrollable Chat Timeline Box Container -->
+<div id="chat-box" style="padding: 20px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; max-height: 380px;">
+
+                        {% for msg in conversation %}
+                            <div style="max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap;
+                                {% if msg.sender_id == current_user.id %}
+                                    align-self: flex-end; background: var(--accent-glow); color: #fff; border-bottom-right-radius: 2px;
+                                {% else %}
+                                    align-self: flex-start; background: rgba(255,255,255,0.06); color: #F3F4F6; border-top-left-radius: 2px; border: 1px solid var(--border-muted);
+                                {% endif %}">
+                                {{ msg.body }}
+                                <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 5px; text-align: right;">
+                                    {{ msg.timestamp.strftime('%H:%M') }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Text Composer Input form anchor bottom box element row link -->
+                    <div style="padding: 20px; border-top: 1px solid var(--border-muted); background: rgba(0,0,0,0.1);">
+                        <form action="/send_message/{{ partner.id }}" method="POST" style="display: flex; gap: 10px; margin:0;">
+                            <input type="text" name="body" placeholder="Type transmission sequence..." required style="margin: 0; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                            <button type="submit" style="padding: 0 20px; flex-shrink: 0; white-space: nowrap;">Send ⚡</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+    {% endif %}
+       <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            var chatBox = document.getElementById("chat-box");
+            if (chatBox) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+
+
+{% endblock %}

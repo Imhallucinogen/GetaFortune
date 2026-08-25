@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div style="background: var(--bg-card); padding: 40px; border: 1px solid var(--border-muted); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 600px; margin: 40px auto;">
+        <h2 style="margin-top:0;">Send Private Message</h2>
+        <p style="color: var(--text-secondary);">Your message will be sent securely to the inbox of <span style="color:#fff; font-weight:600;">@{{ receiver.username }}</span>.</p>
+        
+        <form method="POST">
+            <label style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary);">Message Content</label>
+            <textarea name="body" rows="6" placeholder="Type your text transmission message here..." required></textarea>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <a href="/" style="background: rgba(255,255,255,0.05); color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight:600; font-size:0.95rem; border: 1px solid var(--border-muted);">Cancel</a>
+                <button type="submit">Send Message ✉️</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

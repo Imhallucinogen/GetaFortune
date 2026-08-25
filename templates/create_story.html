@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div style="background: var(--bg-card); padding: 40px; border: 1px solid var(--border-muted); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+        <h2 style="margin-top: 0; margin-bottom: 8px;">Publish New Archive Chronicle</h2>
+        <p style="color: var(--text-secondary); margin-top: 0; margin-bottom: 35px;">Your text payload will immediately deploy to the public grid stream.</p>
+        
+        <form method="POST">
+            <label style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary);">Title Heading String</label>
+            <input type="text" name="title" placeholder="Give your narrative a high-impact name..." required>
+
+            <label style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary);">Story Body Markdown Payloads</label>
+            <textarea name="content" rows="12" placeholder="Write your thoughts into the terminal feed stream canvas box..." required></textarea>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" style="padding: 14px 32px;">Broadcast Publicly 🚀</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
