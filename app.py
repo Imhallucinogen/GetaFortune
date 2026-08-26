@@ -1,12 +1,25 @@
+import os
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from sqlalchemy import or_
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-super-secret-key-change-this-later'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-only-fallback-change-in-production')
+
+# --- DATABASE CONFIG ---
+# Use the real Postgres database (DATABASE_URL) whenever it's set (e.g. on Render).
+# Only fall back to a local SQLite file for quick local testing on your own machine.
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -18,10 +31,10 @@ login_manager.login_view = 'login'
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     stories = db.relationship('Story', backref='author', lazy=True)
     votes = db.relationship('VoteRecord', backref='user', lazy=True)
-    
+
     messages_sent = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy=True)
     messages_received = db.relationship('Message', foreign_keys='Message.receiver_id', backref='receiver', lazy=True)
 
@@ -81,7 +94,8 @@ def register():
         existing_user = User.query.filter_by(username=form_username).first()
         if existing_user:
             return "Username already exists! Try another one."
-        new_user = User(username=form_username, password=form_password)
+        hashed_password = generate_password_hash(form_password)
+        new_user = User(username=form_username, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
@@ -93,7 +107,7 @@ def login():
         form_username = request.form.get('username')
         form_password = request.form.get('password')
         user = User.query.filter_by(username=form_username).first()
-        if user and user.password == form_password:
+        if user and check_password_hash(user.password, form_password):
             login_user(user)
             return redirect(url_for('home'))
         else:
@@ -179,13 +193,13 @@ def inbox(chat_user_id=None):
         if msg.sender_id != current_user.id: chat_partners_ids.add(msg.sender_id)
         if msg.receiver_id != current_user.id: chat_partners_ids.add(msg.receiver_id)
     active_chat_users = User.query.filter(User.id.in_(chat_partners_ids)).all()
-    
+
     if not chat_user_id and active_chat_users:
         chat_user_id = active_chat_users[0].id
-        
+
     conversation_history = []
     selected_partner = None
-    
+
     if chat_user_id:
         selected_partner = db.session.get(User, chat_user_id)
         conversation_history = Message.query.filter(
@@ -194,7 +208,7 @@ def inbox(chat_user_id=None):
                 ((Message.sender_id == chat_user_id) & (Message.receiver_id == current_user.id))
             )
         ).order_by(Message.timestamp.asc()).all()
-        
+
         for msg in conversation_history:
             if msg.receiver_id == current_user.id:
                 msg.is_read = True
