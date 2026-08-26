@@ -2,8 +2,8 @@
 
 {% block content %}
     <div style="background: var(--bg-card); padding: 40px; border: 1px solid var(--border-muted); border-radius: 12px; max-width: 480px; margin: 60px auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-        <h2 style="margin-top: 0; margin-bottom: 8px;">Welcome Back</h2>
-        <p style="color: var(--text-secondary); margin-top: 0; margin-bottom: 30px; font-size: 0.95rem;">Enter your platform keys to sync workspace data.</p>
+        <h2 style="margin-top: 0; margin-bottom: 8px;">Welcome</h2>
+        <p style="color: var(--text-secondary); margin-top: 0; margin-bottom: 30px; font-size: 0.95rem;">Enter your Username and Password.</p>
         
         <form method="POST">
             <label style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary);">Account Username</label>
@@ -15,7 +15,7 @@
             <button type="submit" style="width: 100%; margin-top: 10px; padding: 14px;">Verify Credentials</button>
         </form>
         <p style="margin-bottom: 0; margin-top: 25px; font-size: 0.9rem; text-align: center; color: var(--text-secondary);">
-            New user terminal? <a href="/register" style="color: var(--accent-glow); text-decoration: none; font-weight: 500;">Initialize code channel</a>.
+            New user? <a href="/register" style="color: var(--accent-glow); text-decoration: none; font-weight: 500;">Register Here</a>.
         </p>
     </div>
 {% endblock %}
